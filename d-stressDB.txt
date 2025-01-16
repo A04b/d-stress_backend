@@ -1,0 +1,303 @@
+-- Create the Users table
+CREATE TABLE Profile (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    date_of_birth DATE,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+<>
+-- Create the Questionnaires table
+CREATE TABLE Questionnaires (
+    questionnaire_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+<>
+insert into Questionnaires values(1,'hobbies and interest','about the hobbies and personal interest of the person'),(2,'hobbies and interest','about the places the person would like to spend time'),(3,'hobbies and interest','what type of things the person does in free time');
+</>
+
+
+-- Create the Questions table
+CREATE TABLE Question (
+    question_id SERIAL PRIMARY KEY,
+    questionnaire_id INTEGER REFERENCES Questionnaires(questionnaire_id) ON DELETE CASCADE,
+    question_text TEXT NOT NULL,
+    question_type VARCHAR(50) CHECK (question_type IN ('multiple_choice', 'text')),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+select * from question;
+ question_id | questionnaire_id | question_text | question_type | created_at | updated_at | template_id
+
+
+insert into question values
+(1,1,'How often do you feel overwhelmed(burdened/stressed to the point you are unable to focus) by the amount of study material you need to cover?','Academic Pressure',now(),now());
+(2,1,'How often do you feel anxious about exams or deadlines?','Academic Pressure',now(),now());
+
+insert into question values
+(3,1,'Do you struggle to balance your academic responsibilities with other activities like hobbies or social life? ','Time Management',now() ,now()),
+(4,1,' How often do you feel you have too much to do and not enough time?','Time Management',now(),now()),
+(5,1,'Do you often procrastinate on assignments or studying? ','Time Management',now(),now());
+
+insert into question values
+(6,1,'How often do conflicts with friends or classmates cause you stress?','Peer Relationships',now(),now()),
+(7,1,'Do you feel pressured by your peers to perform well academically? ','Peer Relationships',now(),now()),
+(8,1,'How satisfied are you with your social interactions at school or college? ','Peer Relationships',now(),now());
+
+insert into question values
+(9,1,'Do you feel stressed by the academic expectations your family has of you? 
+','Family Expectations',now(),now()),
+(10,1,'How often do you feel that you are not meeting your family’s expectations in your studies?','Family Expectations',now(),now()),
+(11,1,'Do you find it difficult to discuss your academic challenges with your family?','Family Expectations',now(),now());
+
+insert into question values
+(12,1,'How often do you experience physical symptoms like headaches or fatigue due to academic stress? ','Personal Well-being',now(),now()
+),
+(13,1,'Do you have trouble sleeping because of academic worries? ','Personal Well-being',now(),now()),
+(14,1,'How often do you feel anxious or stressed in general? ','Personal Well-being',now(),now());
+
+
+<>
+stress_analysis=# insert into Questions values(1,1,'what activities do you enjoy doing in your free time?','multiple_choice'),(2,2,'how often do you enagage in these activities?','multiple_choice'),(3,3,'are you interested in exploring new hobbies or activities that could help you relax and manage stress?','multiple_choice');
+</>
+
+-- Create the option 
+CREATE TABLE option (
+option_id SERIAL PRIMARY KEY,
+questionnaire_id INTEGER REFERENCES questionnaire(questionnaire_id) ON DELETE CASCADE,
+question_id INTEGER REFERENCES question(question_id) ON DELETE CASCADE,
+template_id INTEGER REFERENCES option_templates(template_id) ON DELETE CASCADE,
+);
+postgres=# select * from option;
+ option_id | questionnaire_id | question_id | option_text
+-----------+------------------+-------------+---------------
+(0 rows)
+
+insert into option values
+(1,1,1,' Never: You always manage to stay on top of your studies without stress.'),
+(2,1,1,' Never: You always manage to stay on top of your studies without stress.'),
+(3,1,1,' Rarely: You occasionally feel overwhelmed but quickly catch up.'),
+(4,1,1,' Sometimes: You sometimes feel overwhelmed, especially before exams.'),
+(5,1,1,' Often: You frequently struggle to keep up with your study load.');
+
+insert into option values
+(6,1,2,' Always: You constantly feel overwhelmed and behind in your studies.'),
+(7,1,2,' Never: Exams and deadlines don''t cause you stress.'),
+(8,1,2,' Rarely: You feel a little anxious, but it’'s manageable.'),
+(9,1,2,' Sometimes: You often worry about exams and deadlines.'),
+(10,1,2,' Always: You are always anxious about upcoming exams and deadlines.'),
+
+(11,1,3,' Never: You easily balance academics and other activities.'),
+(12,1,3,' Rarely: You occasionally struggle, but it’'s rare.'),
+(13,1,3,' Sometimes: You sometimes find it hard to balance both.'),
+(14,1,3,' Often: You frequently struggle to maintain a balance.'),
+(15,1,3,' Always: You always find it difficult to manage both academics and other activities.');
+
+(16,1,4,' Never: You always have enough time for everything.'),
+(17,1,4,' Rarely: You rarely feel pressed for time.'),
+(18,1,4,' Sometimes: You sometimes feel like you’'re running out of time.'),
+(19,1,4,' Often: You frequently feel you have too much to do.'),
+(20,1,4,' Always: You always feel overwhelmed by a lack of time.'),
+
+(21,1,5,' Never: You complete assignments and study well in advance.'),
+(22,1,5,' Rarely: You occasionally procrastinate, but it’'s not a habit.'),
+(23,1,5,' Sometimes: You procrastinate regularly but usually catch up.'),
+(24,1,5,' Often: You frequently delay assignments and study at the last minute.'),
+(25,1,5,' Always: You always procrastinate and struggle to finish on time.'),
+
+(26,1,6,' Never: Conflicts with peers don’'t bother you at all.'),
+(27,1,6,' Rarely: You occasionally feel stressed by conflicts, but it’'s not common.'),
+(28,1,6,' Sometimes: You sometimes find conflicts stressful.'),
+(29,1,6,' Often: You frequently feel stressed by conflicts with peers.'),
+(30,1,6,' Always: Conflicts with friends or classmates always stress you out.'),
+
+
+(31,1,7,' Never: You don’'t feel any pressure from your peers.'),
+(32,1,7,' Rarely: You rarely feel pressured by others’' expectations.'),
+(33,1,7,' Sometimes: You sometimes feel the need to perform well because of peer pressure.'),
+(34,1,7,' Often: You often feel stressed by the pressure to keep up with peers.'),
+(35,1,7,' Always: You always feel under pressure to perform because of your peers.');
+
+insert into option values
+(36,1,8,' Very satisfied: You are very happy with your social life.'),
+(37,1,8,' Satisfied: You are generally content with your social interactions.'),
+(38,1,8,' Neutral: You feel indifferent about your social life.'),
+(39,1,8,' Unsatisfied: You are unhappy with your social interactions.'),
+(40,1,8,' Very unsatisfied: You are very dissatisfied with your social life.'),
+
+(41,1,9,' Never: Your family’'s expectations don’'t cause you any stress.'),
+(42,1,9,' Rarely: You occasionally feel stressed, but it’'s manageable.'),
+(43,1,9,' Sometimes: You sometimes feel pressured by family expectations.'),
+(44,1,9,' Often: You frequently feel stressed by what your family expects from you.'),
+(45,1,9,' Always: Your family’'s expectations constantly cause you stress.'),
+
+(46,1,10,' Never: You always feel you meet your family’'s expectations.'),
+(47,1,10,' Rarely: You occasionally feel you’'re not meeting expectations.'),
+(48,1,10,' Sometimes: You sometimes feel you’'re falling short of expectations.'),
+(49,1,10,' Often: You frequently feel you’'re not meeting your family’'s expectations.'),
+(50,1,10,' Always: You constantly feel you’'re not living up to your family’'s expectations.'),
+
+(51,1,11,' Never: You openly discuss your challenges with your family.'),
+(52,1,11,' Rarely: You rarely struggle to talk about your academic issues.'),
+(53,1,11,' Sometimes: You sometimes find it hard to share academic problems.'),
+(54,1,11,' Often: You often struggle to discuss academic challenges with your family.'),
+(55,1,11,' Always: You always find it difficult to talk about your academic issues with your family.'),
+
+(56,1,12,' Never: You don’'t experience physical symptoms related to stress.'),
+(57,1,12,' Rarely: You occasionally feel fatigued or have headaches due to stress.'),
+(58,1,12,' Sometimes: You sometimes experience physical symptoms from academic stress.'),
+(59,1,12,' Often: You frequently suffer from headaches or fatigue due to stress.'),
+(60,1,12,' Always: You constantly experience physical symptoms related to academic stress'),
+
+(61,1,13,' Never: You sleep well and are not affected by academic stress.'),
+(62,1,13,' Rarely: You occasionally have trouble sleeping due to academic concerns.'),
+(63,1,13,' Sometimes: You sometimes struggle to sleep because of stress.'),
+(64,1,13,' Often: You frequently have trouble sleeping because of academic worries.'),
+(65,1,13,' Always: You always have difficulty sleeping due to academic stress.'),
+
+(66,1,14,' Never: You rarely feel anxious or stressed.'),
+(67,1,14,' Rarely: You occasionally feel anxious, but it doesn’'t affect you much.'),
+(68,1,14,' Sometimes: You sometimes feel stressed or anxious.'),
+(69,1,14,' Often: You frequently feel stressed or anxious.'),
+(70,1,14,' Always: You constantly feel anxious or stressed.');
+
+
+
+
+
+
+-- Create the Responses table
+CREATE TABLE Responses (
+    response_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(user_id) ON DELETE CASCADE,
+    question_id INTEGER REFERENCES Questions(question_id) ON DELETE CASCADE,
+    response_value TEXT NOT NULL,
+    score INTEGER,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+<>insert into Responses values(1,1,1,'c',3),(2,1,2,'b',2),(3,1,3,'a',1);
+</>
+
+
+-- Create the Resources table
+CREATE TABLE Resources (
+    resource_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    resource_type VARCHAR(50) CHECK (resource_type IN ('article', 'video', 'book')),
+    link VARCHAR(255),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+
+<>
+insert into Resources values (1,'two days one night','variety show of celebrities doing small tasks for living','video','https://#'),(2,'do epic shit','great book by ankoor varikar','book','https://#'),(3,'how to get sleep asap','best remedies to sleep better and early','article','https://#');
+
+</>
+
+
+-- Create the Professionals table
+CREATE TABLE Professionals (
+    professional_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    specialization VARCHAR(255),
+    experience VARCHAR(255),
+    contact_info VARCHAR(255),
+    bio TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+<>
+
+insert into Professionals values(1,'Dr.Varsha Choudhari','Counselling Pyschologist,Pyschotherapist','13 years Overall Experience','5612312457','Awakened Living Counselling');
+INSERT 0 1
+stress_analysis=# insert into Professionals values(2,'Dr.Pankaj Borade','Psychiatrist','15 years Experience','5612312457','Stress Management');
+INSERT 0 1
+stress_analysis=# insert into Professionals values(3,'Dr. Smita Joshi','Counselling Psychologist','27 years Overall Experience','56123565457','Stress Management');
+
+</>
+
+-- Create the ForumPosts table
+CREATE TABLE ForumPosts (
+    post_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(user_id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the ForumComments table
+CREATE TABLE ForumComments (
+    comment_id SERIAL PRIMARY KEY,
+    post_id INTEGER REFERENCES ForumPosts(post_id) ON DELETE CASCADE,
+    user_id INTEGER REFERENCES Users(user_id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the UserProgress table
+CREATE TABLE UserProgress (
+    progress_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(user_id) ON DELETE CASCADE,
+    metric_name VARCHAR(255) NOT NULL,
+    metric_value FLOAT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the Activities table
+CREATE TABLE Activities (
+    activity_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    activity_type VARCHAR(50) CHECK (activity_type IN ('game', 'exercise', 'task')),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+insert into Activities values(1,'Meditation','meditation at individual level','exercise'),(2,'Meditaiton','meditation at community level','exercise'),(3,'Cooking','cooking small recipes','task');
+
+
+-- Create the UserActivities table
+CREATE TABLE UserActivities (
+    user_activity_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(user_id) ON DELETE CASCADE,
+    activity_id INTEGER REFERENCES Activities(activity_id) ON DELETE CASCADE,
+    completion_status VARCHAR(50) CHECK (completion_status IN ('completed', 'in_progress', 'not_started')),
+    score INTEGER,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+
+
+--CREATE TABLE Booking (
+    booking_id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES profile(user_id),
+    professional_id INTEGER REFERENCES professional(professional_id),
+    appointment_date DATE NOT NULL,
+    status VARCHAR(10) CHECK (status IN ('PENDING', 'CONFIRMED', 'CANCELLED')),
+    payment_status VARCHAR(10) CHECK (payment_status IN ('PENDING', 'COMPLETED'))
+);
+
+--CREATE TABLE Transaction (
+    transaction_id SERIAL PRIMARY KEY,
+    booking_id INTEGER REFERENCES Booking(booking_id),
+    amount DECIMAL(10, 2) NOT NULL,
+    payment_method VARCHAR(10) CHECK (payment_method IN ('CARD', 'UPI', 'etc.')),
+    transaction_date TIMESTAMP NOT NULL,
+    transaction_status VARCHAR(10) CHECK (transaction_status IN ('SUCCESS', 'FAILED'))
+);
+
